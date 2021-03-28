@@ -7,10 +7,12 @@ const {
 const inosuke = new Discord.Client();
 const { Builder, By, Key, until } = require('selenium-webdriver');
 const webdriver = new Builder().forBrowser('chrome').build();
+const fs = require('fs')
 const queue = new Map();
 const ytdl = require('ytdl-core');
 const { Driver } = require('selenium-webdriver/chrome');
-
+const { findSafariDriver } = require('selenium-webdriver/safari');
+const { toUnicode } = require('punycode');
 
 inosuke.once("ready", () => {
   console.log("Ready!");
@@ -33,19 +35,35 @@ inosuke.on("message", async message => {
   if (message.content.startsWith(`${prefix}play`)) {
     execute(message, serverQueue);
     return;
+  } else if (message.content.startsWith(`${prefix}todo`)) {
+    toDo(message)
   } else if (message.content.startsWith(`${prefix}skip`)) {
     skip(message, serverQueue);
     return;
   } else if (message.content.startsWith(`${prefix}stop`)) {
     stop(message, serverQueue);
     return;
-  } else if (message.content.startsWith(`${prefix}chegg`)) {
+  } else if (message.content.startsWith(`${prefix}chegg`) || message.content.startsWith(`${prefix}c`)){
     chegg(message);
   }
   else {
     message.channel.send("You need to enter a valid command!");
   }
 });
+function toDo(message) {
+  return message.channel.send(` 
+    - Fix Chegg screenshot (Screenshot happens but only shows up sometimes...)
+      * Solution may be to add wait time, let screenshot take place after page loads or else image ends up blank.
+      * Solution may involve the order in which the async function is being used.
+    - Add other commands
+      * Implement everything else in -chegg help command.
+    - Figure out issues logging into chegg with bot.
+      * Change chegg account information...
+    - Figure out how to make bot DM Users.
+      * DM users chegg images to avoid spam in channels. Another option would be to
+      constantly clear chat using bot.
+  `)
+}
 async function chegg(message) {
   const args = message.content.split(" ");
   if (args[1] == `help`) {
@@ -59,13 +77,17 @@ async function chegg(message) {
       chegg reset - NOT WORKING YET.
       chegg error <error message> - Not a command yet, Send errors or problems to Erick Mora :D`);
   } else if (args[1] == `link`) {
-    message.channel.send("Third arg: " + args[2]);
     let cheggLink = args[2];
     webdriver.get(cheggLink);
+    await webdriver.takeScreenshot().then(function (data) {
+      fs.writeFileSync('./images/img.png', data, 'base64');
+    });
+    message.channel.send("", {files: ["./images/img.png"]});
   } else {
     return message.channel.send(args[1] + " Command is incomplete or not a valid chegg command.");
   }
 }
+
 async function execute(message, serverQueue) {
   const args = message.content.split(" ");
 
