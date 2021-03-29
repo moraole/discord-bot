@@ -1,18 +1,20 @@
-
+// Written by Erick Mora
+// A discord bot that plays youtube audio and can gather information from webpages for the user.
 const Discord = require('discord.js');
 const {
   prefix,
   token,
 } = require('./config.json');
 const inosuke = new Discord.Client();
+let chrome = require ('selenium-webdriver/chrome');
 const { Builder, By, Key, until } = require('selenium-webdriver');
-const webdriver = new Builder().forBrowser('chrome').build();
+const width = 3000
+const height = 2000
+const webdriver = new Builder().forBrowser('chrome').setChromeOptions(new chrome.Options().headless().windowSize({ width, height})).build();
 const fs = require('fs')
 const queue = new Map();
 const ytdl = require('ytdl-core');
-const { Driver } = require('selenium-webdriver/chrome');
-const { findSafariDriver } = require('selenium-webdriver/safari');
-const { toUnicode } = require('punycode');
+
 
 inosuke.once("ready", () => {
   console.log("Ready!");
@@ -43,27 +45,14 @@ inosuke.on("message", async message => {
   } else if (message.content.startsWith(`${prefix}stop`)) {
     stop(message, serverQueue);
     return;
-  } else if (message.content.startsWith(`${prefix}chegg`) || message.content.startsWith(`${prefix}c`)){
+  } else if (message.content.startsWith(`${prefix}chegg`) || message.content.startsWith(`${prefix}c`)) {
     chegg(message);
   }
   else {
     message.channel.send("You need to enter a valid command!");
   }
 });
-function toDo(message) {
-  return message.channel.send(` 
-    - Fix Chegg screenshot (Screenshot happens but only shows up sometimes...)
-      * Solution may be to add wait time, let screenshot take place after page loads or else image ends up blank.
-      * Solution may involve the order in which the async function is being used.
-    - Add other commands
-      * Implement everything else in -chegg help command.
-    - Figure out issues logging into chegg with bot.
-      * Change chegg account information...
-    - Figure out how to make bot DM Users.
-      * DM users chegg images to avoid spam in channels. Another option would be to
-      constantly clear chat using bot.
-  `)
-}
+
 async function chegg(message) {
   const args = message.content.split(" ");
   if (args[1] == `help`) {
@@ -78,11 +67,13 @@ async function chegg(message) {
       chegg error <error message> - Not a command yet, Send errors or problems to Erick Mora :D`);
   } else if (args[1] == `link`) {
     let cheggLink = args[2];
-    webdriver.get(cheggLink);
+    await webdriver.get(cheggLink);
+    webdriver.wait(until.elementLocated(By.name('answers-h2')), 5 * 1000);
+    
     await webdriver.takeScreenshot().then(function (data) {
       fs.writeFileSync('./images/img.png', data, 'base64');
     });
-    message.channel.send("", {files: ["./images/img.png"]});
+    message.channel.send("", { files: ["./images/img.png"] });
   } else {
     return message.channel.send(args[1] + " Command is incomplete or not a valid chegg command.");
   }
