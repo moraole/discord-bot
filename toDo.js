@@ -2,11 +2,13 @@
  * Returns list of commands needing some work to be done.
  *
  * @param {string} 
- * @return {string} message.channel.send() .
+ * @return {string} message.channel.send() a message with things to do to get the bot fully functioning.
  */
 function toDo(message) {
     return message.channel.send(
-    `   ** Answer only display **
+    `   fix all async functions (including toDo) using **module.exports**
+        ** Answer only display **
+        Final step: Remove elements and print results!
           // Get image element?
             -- if multiple images found => get multiple images.
                 => Look for stop point.
