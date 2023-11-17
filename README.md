@@ -5,5 +5,5 @@ A discord bot that, using selenium and chrome webdriver, can navigate through a 
 ## Requirements:
 
 Selenium, access to discord API, and Code is written using javascript. 
-use !s <link> to take a screenshot of a webpage on a given link.
+use !s (insert link here) to take a screenshot of a webpage on a given link.
 config.json must have a discord bot token.
