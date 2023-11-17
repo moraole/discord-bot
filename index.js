@@ -43,7 +43,7 @@ DBot.on("message", async message => {
   } else if (message.content.startsWith(`${prefix}stop`)) {
     stop(message, serverQueue);
     return;
-  } else if (message.content.startsWith(`${prefix}DBot`) || message.content.startsWith(`${prefix}c`)) {
+  } else if (message.content.startsWith(`${prefix}DBot`) || message.content.startsWith(`${prefix}s`)) {
     DBot(message);
   }
   else {
